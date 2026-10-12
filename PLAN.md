@@ -17,9 +17,12 @@ wings** (reference: neon wings on the shoulders over a night-graded scene). Ther
   instruction.
 - **Art:** the user's `public/images/wing.png` (one wing, root bottom right), mirrored for the
   other side.
-- **Preview:** the user's dance clip (`dev-media/dancing.mp4`, 1080×1920, 29 s, 43 MB) is the
-  default in the dev media switcher. It lives outside `public/` and `src/`, so it never ships,
-  and is git-ignored (licence not cleared for a public repo).
+- **Preview:** the dev media switcher starts on the SDK's built-in "Person Fullbody" video, so a
+  fresh clone needs no clip. An optional local clip at `dev-media/dancing.mp4` (the user's dance
+  clip: 1080×1920, 29 s, 43 MB) is listed first and used instead. It's loaded by a glob-style
+  dynamic import, so a missing file only gives an esbuild "empty-glob" warning; the generated
+  lookup then throws synchronously, so the import runs inside a `.then`. The clip is outside
+  `public/` and `src/` (never ships) and git-ignored (licence not cleared for a public repo).
 
 ## Composition
 

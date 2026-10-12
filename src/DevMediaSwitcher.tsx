@@ -1,15 +1,18 @@
-// DevMediaSwitcher.tsx — dev-only: preview with a local dance clip and the
-// SDK's sample media.
+// DevMediaSwitcher.tsx — dev-only: preview with the SDK's sample media, plus an
+// optional local clip.
 //
 // The template's own media switcher (App.tsx → MediaSourceControl) appears in
 // development once a source is announced, which only happens when the webcam
 // works. In a browser without a camera (the built-in preview) it never shows,
-// so this fills exactly that gap: when the webcam fails it starts on the
-// project's dance clip (dev-media/dancing.mp4) and shows the SDK's
-// MediaSourceSwitcher with that clip, every SDK sample video and image, and the
-// webcam. The clip lives in dev-media/: outside src/ (the zone manifest can't
-// classify .mp4) and outside public/ (which ships). With a working webcam it stays out of the
-// way and the template's switcher is the one you see.
+// so this fills exactly that gap: when the webcam fails it shows the SDK's
+// MediaSourceSwitcher with every SDK sample video and image and the webcam, and
+// starts on the SDK's "Person Fullbody" video. Nothing to download first.
+//
+// Optional: drop a clip at dev-media/dancing.mp4 and it is listed first and
+// used as the start instead (git-ignored; see dev-media/README.md). It lives
+// outside src/ (the zone manifest can't classify .mp4) and outside public/
+// (which ships). With a working webcam this stays out of the way and the
+// template's switcher is the one you see.
 //   ?input=webcam  never take over
 //
 // Never reaches production: Scene.tsx lazy-imports this module behind an inline
@@ -24,7 +27,6 @@ import {
   useXRReady,
 } from "@vincentt-xr/sdk/low-level";
 
-import danceUrl from "../dev-media/dancing.mp4";
 import { streamFromImageUrl } from "./mediaStream";
 
 type Preset = {
@@ -42,14 +44,34 @@ type SwitcherModule = {
   sources: Preset[];
 };
 
-/** The project's own dance clip, listed first and used as the starting source. */
-const DANCE: Preset = {
-  id: "local-dance",
-  kind: "video",
-  label: "Dancing",
-  url: danceUrl,
-};
-const START_ID = DANCE.id;
+/** The optional local clip's file name in dev-media/ (without `.mp4`). */
+const LOCAL_CLIP = "dancing";
+
+/**
+ * The local clip as a preset, or null without one. The template-literal import
+ * is a glob for esbuild (it bundles whatever matches dev-media/*.mp4), so a
+ * fresh clone with no clip still builds (with an "empty-glob" warning). With no
+ * match the generated lookup throws synchronously rather than rejecting, so the
+ * import runs inside a `.then` to turn that into a rejection.
+ */
+const loadLocalClip = (): Promise<Preset | null> =>
+  Promise.resolve()
+    .then(
+      () =>
+        import(`../dev-media/${LOCAL_CLIP}.mp4`) as Promise<{
+          default: string;
+        }>,
+    )
+    .then((m) => ({
+      id: "local-clip",
+      kind: "video" as const,
+      label: "Dancing (local)",
+      url: m.default,
+    }))
+    .catch(() => null);
+
+/** Without a local clip, start on this SDK sample: a whole body, moving. */
+const SDK_START = "person_fullbody.mp4";
 
 type CaptureCanvas = HTMLCanvasElement & {
   captureStream: (fps?: number) => MediaStream;
@@ -151,18 +173,20 @@ const DevMediaSwitcher = () => {
       return;
     if (!error) return;
     started.current = true;
-    import("@vincentt-xr/sdk/debug-ui/media-source").then((m) => {
-      const sources = [
-        DANCE,
-        ...(m.defaultMediaSources as unknown as Preset[]),
-      ];
+    Promise.all([
+      import("@vincentt-xr/sdk/debug-ui/media-source"),
+      loadLocalClip(),
+    ]).then(([m, local]) => {
+      const sdk = m.defaultMediaSources as unknown as Preset[];
+      const sources = local ? [local, ...sdk] : sdk;
       setMod({
         Switcher:
           m.MediaSourceSwitcher as unknown as SwitcherModule["Switcher"],
         sources,
       });
       const first =
-        sources.find((s) => s.id === START_ID) ??
+        local ??
+        sources.find((s) => s.url?.endsWith(SDK_START)) ??
         sources.find((s) => s.kind === "video");
       if (first) apply(first);
     });

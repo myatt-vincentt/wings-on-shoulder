@@ -5,8 +5,9 @@ shoulders, they lift and fold with your arms and give a big flap when you swing 
 jump. Raise both arms for light rays; show a peace sign ✌️ (or tap) to switch between Angel, Neon and Dark
 wings.
 
-- Dev preview without a camera: the media switcher (☰) starts on the dance clip in `dev-media/`
-  (git-ignored, never shipped; see `dev-media/README.md`) and offers the SDK's sample media.
+- Dev preview without a camera: the media switcher (☰) starts on the SDK's built-in "Person
+  Fullbody" video, with every SDK sample to pick from. Nothing to download. Optionally drop your
+  own clip at `dev-media/dancing.mp4` (git-ignored; see `dev-media/README.md`).
 - Wing art: `public/images/wing.png`. Tuning: `src/wings/config.ts`. How it works: `PLAN.md`.
 
 ---
