@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/src/index.css" rel="stylesheet" />
+    <script>
+      // Resolve theme before first paint to avoid flash.
+      // Priority: ?theme=light|dark URL param → system preference.
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var override = params.get("theme");
+          var resolved =
+            override === "light" || override === "dark"
+              ? override
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          document.documentElement.dataset.theme = resolved;
+          document.documentElement.classList.toggle(
+            "dark",
+            resolved === "dark",
+          );
+        } catch (_) {}
+      })();
+    </script>
+
+    <!-- Tracking files come from here. They are not preloaded: on a slow link a
+         multi-megabyte preload competes with the scripts the first paint needs. -->
+    <link rel="preconnect" href="https://cdn.vincentt.studio" crossorigin />
+
+    <title>Wings</title>
+    <meta name="description" content="Grow wings. Angel, neon or dark wings spread from your shoulders, follow your arms and flap when you move — show a peace sign to switch, halo included, right in your browser." />
+    <meta name="theme-color" content="#141a33" />
+    <link rel="canonical" href="https://wings-portrait-segmentation.vincentt.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Vincentt" />
+    <meta property="og:title" content="Wings" />
+    <meta property="og:url" content="https://wings-portrait-segmentation.vincentt.app/" />
+    <meta property="og:description" content="Grow wings. Angel, neon or dark wings spread from your shoulders, follow your arms and flap when you move — show a peace sign to switch, halo included, right in your browser." />
+    <meta property="og:image" content="https://wings-portrait-segmentation.vincentt.app/images/og-default.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Wings — a camera experience built with Vincentt" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Wings" />
+    <meta name="twitter:description" content="Grow wings. Angel, neon or dark wings spread from your shoulders, follow your arms and flap when you move — show a peace sign to switch, halo included, right in your browser." />
+    <meta name="twitter:image" content="https://wings-portrait-segmentation.vincentt.app/images/og-default.jpg" />
+    <meta name="twitter:image:alt" content="Wings — a camera experience built with Vincentt" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

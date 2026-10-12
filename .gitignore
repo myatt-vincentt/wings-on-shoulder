@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+.vincentt/
+.opencode/
+opencode.json
+.env
+.env.local
+*.log
+
+# Dev-only preview clips (licence unknown, never shipped)
+dev-media/*.mp4
